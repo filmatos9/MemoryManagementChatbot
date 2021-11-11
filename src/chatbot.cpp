@@ -18,7 +18,7 @@ ChatBot::ChatBot()
 }
 
 // constructor WITH memory allocation
-ChatBot::ChatBot(std::string filename)
+ChatBot::ChatBot(std::string filename) : ChatBot()
 {
     std::cout << "ChatBot Constructor" << std::endl;
     
@@ -27,23 +27,75 @@ ChatBot::ChatBot(std::string filename)
     _rootNode = nullptr;
 
     // load image into heap memory
-    _image = new wxBitmap(filename, wxBITMAP_TYPE_PNG);
-}
-
-ChatBot::~ChatBot()
-{
-    std::cout << "ChatBot Destructor" << std::endl;
-
-    // deallocate heap memory
-    if(_image != NULL) // Attention: wxWidgets used NULL and not nullptr
-    {
-        delete _image;
-        _image = NULL;
-    }
+    _image = std::make_unique<wxBitmap>(filename, wxBITMAP_TYPE_PNG);
 }
 
 //// STUDENT CODE
 ////
+
+ void ChatBot::CopySharedPointers(const ChatBot& source) 
+ {
+    _chatLogic = source._chatLogic;
+    _currentNode = source._currentNode;
+    _rootNode = source._rootNode;
+ }
+
+ void ChatBot::ResetPointers() 
+ {
+    _image = nullptr;
+    _chatLogic = nullptr;
+    _currentNode = nullptr;
+    _rootNode = nullptr;
+ }
+
+// copy constructor
+ChatBot::ChatBot(const ChatBot& source) : ChatBot()
+{
+    std::cout << "ChatBot Copy Constructor" << std::endl;
+    if (!source._image) {
+        _image = std::make_unique<wxBitmap>(*source._image);
+    }
+    this->CopySharedPointers(source);
+}
+
+// copy assignment
+ChatBot& ChatBot::operator=(const ChatBot& source) 
+{
+    std::cout << "ChatBot Copy Assignment" << std::endl;
+    if (this == &source)
+        return *this;
+
+    if (!source._image) {
+        _image = std::make_unique<wxBitmap>(*source._image);
+    }
+    this->CopySharedPointers(source);
+    return *this;
+}
+
+// move constructor
+ChatBot::ChatBot(ChatBot&& source) : ChatBot()
+{
+    std::cout << "ChatBot Move Constructor" << std::endl;
+    // transfer ownership of image
+    _image = std::move(source._image);
+    // move non-owned references
+    this->CopySharedPointers(source);
+    // reset references
+    source.ResetPointers();
+}
+
+// move assignment
+ChatBot& ChatBot::operator=(ChatBot&& source) 
+{
+    std::cout << "ChatBot Move Assignment" << std::endl;
+    // transfer ownership of image
+    _image = std::move(source._image);
+    // move non-owned references
+    this->CopySharedPointers(source);
+    // reset references
+    source.ResetPointers();
+    return *this;
+}
 
 ////
 //// EOF STUDENT CODE
