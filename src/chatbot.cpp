@@ -18,7 +18,7 @@ ChatBot::ChatBot()
 }
 
 // constructor WITH memory allocation
-ChatBot::ChatBot(std::string filename) : ChatBot()
+ChatBot::ChatBot(std::string filename)
 {
     std::cout << "ChatBot Constructor" << std::endl;
     
@@ -30,8 +30,10 @@ ChatBot::ChatBot(std::string filename) : ChatBot()
     _image = std::make_unique<wxBitmap>(filename, wxBITMAP_TYPE_PNG);
 }
 
-//// STUDENT CODE
-////
+ChatBot::~ChatBot() 
+{
+    std::cout << "ChatBot Destructor" << std::endl;
+}
 
  void ChatBot::CopySharedPointers(const ChatBot& source) 
  {
@@ -82,6 +84,8 @@ ChatBot::ChatBot(ChatBot&& source) : ChatBot()
     this->CopySharedPointers(source);
     // reset references
     source.ResetPointers();
+    // reseat chatlogic chatbot
+    _chatLogic->SetChatbotHandle(this);
 }
 
 // move assignment
@@ -94,11 +98,10 @@ ChatBot& ChatBot::operator=(ChatBot&& source)
     this->CopySharedPointers(source);
     // reset references
     source.ResetPointers();
+    // reseat chatlogic chatbot
+    _chatLogic->SetChatbotHandle(this);
     return *this;
 }
-
-////
-//// EOF STUDENT CODE
 
 void ChatBot::ReceiveMessageFromUser(std::string message)
 {
