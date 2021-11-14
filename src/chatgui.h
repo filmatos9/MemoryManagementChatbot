@@ -29,16 +29,9 @@ public:
     // getter / setter
     ChatLogic *GetChatLogicHandle() { return _chatLogic.get(); }
 
-    // events
-    void paintEvent(wxPaintEvent &evt);
-    void paintNow();
-    void render(wxDC &dc);
-
     // proprietary functions
     void AddDialogItem(wxString text, bool isFromUser = true);
     void PrintChatbotResponse(std::string response);
-
-    DECLARE_EVENT_TABLE()
 };
 
 // dialog item shown in ChatBotPanelDialog

@@ -13,8 +13,9 @@ const int height = 736;
 // wxWidgets APP
 IMPLEMENT_APP(ChatBotApp);
 
-std::string dataPath = "../";
-std::string imgBasePath = dataPath + "images/";
+const std::string dataPath = "../";
+const std::string imgBasePath = dataPath + "images/";
+const std::string frameImage = "revelstoke.jpg";
 
 bool ChatBotApp::OnInit()
 {
@@ -41,7 +42,6 @@ ChatBotFrame::ChatBotFrame(const wxString &title) : wxFrame(NULL, wxID_ANY, titl
 
     // create vertical sizer for panel alignment and add panels
     wxBoxSizer *vertBoxSizer = new wxBoxSizer(wxVERTICAL);
-    vertBoxSizer->AddSpacer(90);
     vertBoxSizer->Add(_panelDialog, 6, wxEXPAND | wxALL, 0);
     vertBoxSizer->Add(_userTextCtrl, 1, wxEXPAND | wxALL, 5);
     ctrlPanel->SetSizer(vertBoxSizer);
@@ -88,21 +88,17 @@ void ChatBotFrameImagePanel::paintNow()
 void ChatBotFrameImagePanel::render(wxDC &dc)
 {
     // load backgroud image from file
-    wxString imgFile = imgBasePath + "sf_bridge.jpg";
+    wxString imgFile = imgBasePath + frameImage;
     wxImage image;
     image.LoadFile(imgFile);
 
     // rescale image to fit window dimensions
     wxSize sz = this->GetSize();
-    wxImage imgSmall = image.Rescale(sz.GetWidth(), sz.GetHeight(), wxIMAGE_QUALITY_HIGH);
+    wxImage imgSmall = image.Rotate90().Rescale(sz.GetWidth(), sz.GetHeight(), wxIMAGE_QUALITY_HIGH);
     _image = wxBitmap(imgSmall);
     
     dc.DrawBitmap(_image, 0, 0, false);
 }
-
-BEGIN_EVENT_TABLE(ChatBotPanelDialog, wxPanel)
-EVT_PAINT(ChatBotPanelDialog::paintEvent) // catch paint events
-END_EVENT_TABLE()
 
 ChatBotPanelDialog::ChatBotPanelDialog(wxWindow *parent, wxWindowID id)
     : wxScrolledWindow(parent, id)
@@ -114,9 +110,6 @@ ChatBotPanelDialog::ChatBotPanelDialog(wxWindow *parent, wxWindowID id)
     // allow for PNG images to be handled
     wxInitAllImageHandlers();
 
-    //// STUDENT CODE
-    ////
-
     // create chat logic instance
     _chatLogic = std::make_unique<ChatLogic>(); 
 
@@ -126,8 +119,6 @@ ChatBotPanelDialog::ChatBotPanelDialog(wxWindow *parent, wxWindowID id)
     // load answer graph from file
     _chatLogic->LoadAnswerGraphFromFile(dataPath + "src/answergraph.txt");
 
-    ////
-    //// EOF STUDENT CODE
 }
 
 void ChatBotPanelDialog::AddDialogItem(wxString text, bool isFromUser)
@@ -154,30 +145,6 @@ void ChatBotPanelDialog::PrintChatbotResponse(std::string response)
     // convert string into wxString and add dialog element
     wxString botText(response.c_str(), wxConvUTF8);
     AddDialogItem(botText, false);
-}
-
-void ChatBotPanelDialog::paintEvent(wxPaintEvent &evt)
-{
-    wxPaintDC dc(this);
-    render(dc);
-}
-
-void ChatBotPanelDialog::paintNow()
-{
-    wxClientDC dc(this);
-    render(dc);
-}
-
-void ChatBotPanelDialog::render(wxDC &dc)
-{
-    wxImage image;
-    image.LoadFile(imgBasePath + "sf_bridge_inner.jpg");
-
-    wxSize sz = this->GetSize();
-    wxImage imgSmall = image.Rescale(sz.GetWidth(), sz.GetHeight(), wxIMAGE_QUALITY_HIGH);
-
-    _image = wxBitmap(imgSmall);
-    dc.DrawBitmap(_image, 0, 0, false);
 }
 
 ChatBotPanelDialogItem::ChatBotPanelDialogItem(wxPanel *parent, wxString text, bool isFromUser)
